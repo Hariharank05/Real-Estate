@@ -1,0 +1,1214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrustLand - Verified Real Estate Ecosystem</title>
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-color: #2c5f2d;
+            --secondary-color: #97bc62;
+            --dark-green: #1a3c1b;
+            --broker-color: #3498db;
+            --client-color: #e74c3c;
+            --admin-color: #f39c12;
+            --spotter-color: #9b59b6;
+            --owner-color: #1abc9c;
+            --light-bg: #f8f9fa;
+        }
+
+        * { scroll-behavior: smooth; }
+        body { 
+            font-family: 'Open Sans', sans-serif; 
+            overflow-x: hidden; 
+            background-color: #fff;
+        }
+        h1, h2, h3, h4, h5, h6 { font-family: 'Poppins', sans-serif; }
+
+        /* Page Management Logic */
+        .page { display: none; min-height: 100vh; animation: fadeIn 0.4s ease-in-out; }
+        .page.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* Broker Internal Views Logic */
+        .broker-view { display: none; animation: fadeIn 0.3s ease-in-out; }
+        .broker-view.active { display: block; }
+
+        /* =========================================
+           LANDING PAGE STYLES
+           ========================================= */
+        .landing-nav {
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+            padding: 15px 0;
+            transition: all 0.3s;
+        }
+        .landing-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: var(--primary-color) !important;
+        }
+        .landing-hero {
+            position: relative;
+            height: 90vh;
+            min-height: 600px;
+            background: url('https://images.unsplash.com/photo-1500382017468-9049fed747ef?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80') no-repeat center center/cover;
+            display: flex;
+            align-items: center;
+            color: white;
+        }
+        .hero-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, rgba(44, 95, 45, 0.9) 0%, rgba(26, 60, 27, 0.8) 100%);
+        }
+        .hero-content { position: relative; z-index: 2; }
+        .hero-badges { display: inline-flex; gap: 15px; margin-bottom: 25px; }
+        .hero-badge-item {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(5px);
+            padding: 8px 20px;
+            border-radius: 50px;
+            border: 1px solid rgba(255,255,255,0.3);
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        .features-section { padding: 80px 0; background: #fff; }
+        .feature-box {
+            padding: 30px; border-radius: 20px; background: white;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05); transition: transform 0.3s;
+            height: 100%; border-bottom: 4px solid transparent;
+        }
+        .feature-box:hover { transform: translateY(-10px); border-bottom-color: var(--primary-color); }
+        .feature-icon-circle {
+            width: 70px; height: 70px; background: var(--light-bg); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; margin-bottom: 20px;
+            color: var(--primary-color); font-size: 1.8rem;
+        }
+        .portals-section { padding: 80px 0; background: #f4f7f6; }
+        .portal-grid-card {
+            background: white; border-radius: 15px; padding: 35px 25px; text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05); transition: all 0.3s; height: 100%;
+            cursor: pointer; border: 1px solid rgba(0,0,0,0.03); position: relative; overflow: hidden;
+        }
+        .portal-grid-card:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+        .portal-grid-card::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 5px; background: #ccc; transition: height 0.3s;
+        }
+        .portal-grid-card:hover::before { height: 100%; opacity: 0.05; }
+        .portal-grid-card.p-broker::before { background: var(--broker-color); }
+        .portal-grid-card.p-client::before { background: var(--client-color); }
+        .portal-grid-card.p-admin::before { background: var(--admin-color); }
+        .portal-grid-card.p-spotter::before { background: var(--spotter-color); }
+        .portal-grid-card.p-owner::before { background: var(--owner-color); }
+        .p-icon { font-size: 3.5rem; margin-bottom: 20px; transition: transform 0.3s; }
+        .portal-grid-card:hover .p-icon { transform: scale(1.1); }
+        .p-broker .p-icon, .p-broker .p-title { color: var(--broker-color); }
+        .p-client .p-icon, .p-client .p-title { color: var(--client-color); }
+        .p-admin .p-icon, .p-admin .p-title { color: var(--admin-color); }
+        .p-spotter .p-icon, .p-spotter .p-title { color: var(--spotter-color); }
+        .p-owner .p-icon, .p-owner .p-title { color: var(--owner-color); }
+        .p-title { font-weight: 700; margin-bottom: 10px; }
+        .stats-strip { background: var(--dark-green); color: white; padding: 60px 0; position: relative; overflow: hidden; }
+        .stat-item h2 { font-size: 3rem; font-weight: 700; color: var(--secondary-color); margin-bottom: 0; }
+        .landing-footer { background: #111; color: #aaa; padding: 50px 0 20px; }
+        .footer-logo { color: white; font-size: 1.5rem; font-weight: bold; margin-bottom: 20px; display: block; }
+        .social-link { width: 40px; height: 40px; background: rgba(255,255,255,0.1); display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; margin-right: 10px; color: white; transition: 0.3s; }
+        .social-link:hover { background: var(--primary-color); }
+        .footer-link { color: #aaa; text-decoration: none; display: block; margin-bottom: 10px; transition: 0.2s; }
+        .footer-link:hover { color: white; padding-left: 5px; }
+
+        /* Modal Styles */
+        .auth-modal .modal-content { border-radius: 20px; border: none; overflow: hidden; box-shadow: 0 15px 40px rgba(0,0,0,0.2); }
+        .auth-modal .modal-header { border-bottom: none; padding: 30px 30px 10px; background: #fff; }
+        .auth-modal .modal-body { padding: 10px 30px 30px; }
+        .auth-title { font-weight: 700; color: var(--primary-color); }
+        .form-floating .form-control { border-radius: 10px; border: 1px solid #eee; background-color: #f9f9f9; }
+        .role-selector-group { display: flex; gap: 10px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 5px; }
+        .role-radio { display: none; }
+        .role-label { flex: 1; text-align: center; padding: 10px 15px; background: #f8f9fa; border: 1px solid #eee; border-radius: 10px; cursor: pointer; transition: all 0.2s; font-size: 0.85rem; white-space: nowrap; }
+        .role-radio:checked + .role-label { background: var(--primary-color); color: white; border-color: var(--primary-color); }
+        #role-broker:checked + .role-label { background: var(--broker-color); border-color: var(--broker-color); }
+        #role-client:checked + .role-label { background: var(--client-color); border-color: var(--client-color); }
+        #role-admin:checked + .role-label { background: var(--admin-color); border-color: var(--admin-color); }
+        #role-spotter:checked + .role-label { background: var(--spotter-color); border-color: var(--spotter-color); }
+        #role-owner:checked + .role-label { background: var(--owner-color); border-color: var(--owner-color); }
+
+        /* Shared Module Styles */
+        .sidebar { position: fixed; top: 0; left: 0; height: 100vh; width: 260px; color: white; overflow-y: auto; z-index: 1000; }
+        .sidebar-broker { background: linear-gradient(180deg, var(--broker-color), #2980b9); }
+        .sidebar-client { background: linear-gradient(180deg, var(--client-color), #c0392b); }
+        .sidebar-admin { background: linear-gradient(180deg, var(--admin-color), #e67e22); }
+        .sidebar-spotter { background: linear-gradient(180deg, var(--spotter-color), #8e44ad); }
+        .sidebar-owner { background: linear-gradient(180deg, var(--owner-color), #16a085); }
+        .sidebar-header { padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: center; }
+        .menu-item { padding: 12px 20px; color: rgba(255,255,255,0.8); text-decoration: none; display: block; transition: all 0.3s; border-left: 3px solid transparent; cursor: pointer; }
+        .menu-item:hover, .menu-item.active { background: rgba(255,255,255,0.1); color: white; border-left-color: white; }
+        .main-content { margin-left: 260px; padding: 20px; min-height: 100vh; background: #f5f5f5; }
+        .stat-card { background: white; border-radius: 15px; padding: 25px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); transition: transform 0.3s; }
+        .stat-card:hover { transform: translateY(-5px); }
+        .stat-icon { width: 60px; height: 60px; border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: 15px; }
+        .icon-primary { background: rgba(44, 95, 45, 0.1); color: var(--primary-color); }
+        .icon-success { background: rgba(40, 167, 69, 0.1); color: #28a745; }
+        .icon-warning { background: rgba(243, 156, 18, 0.1); color: #f39c12; }
+        .icon-info { background: rgba(23, 162, 184, 0.1); color: #17a2b8; }
+        .icon-danger { background: rgba(220, 53, 69, 0.1); color: #dc3545; }
+        .icon-purple { background: rgba(155, 89, 182, 0.1); color: var(--spotter-color); }
+        .icon-teal { background: rgba(26, 188, 156, 0.1); color: var(--owner-color); }
+        .wallet-card { background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); color: white; border-radius: 20px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        .wallet-broker { background: linear-gradient(135deg, var(--broker-color), #2980b9); }
+        .wallet-spotter { background: linear-gradient(135deg, var(--spotter-color), #8e44ad); }
+        .property-card { background: white; border-radius: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .property-image { height: 220px; border-radius: 15px 15px 0 0; display: flex; align-items: center; justify-content: center; position: relative; }
+        .verification-badges { position: absolute; top: 15px; left: 15px; display: flex; flex-direction: column; gap: 8px; }
+        .badge-verify { padding: 6px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; backdrop-filter: blur(10px); display: inline-flex; align-items: center; gap: 5px; }
+        .badge-physical { background: rgba(40, 167, 69, 0.9); color: white; }
+        .document-upload-zone { border: 2px dashed #ccc; border-radius: 10px; padding: 30px; text-align: center; cursor: pointer; transition: all 0.3s; }
+        .document-upload-zone:hover { border-color: var(--primary-color); background: #f8f9fa; }
+        .btn-primary { background-color: var(--primary-color); border-color: var(--primary-color); padding: 12px 30px; border-radius: 50px; font-weight: 600; }
+        .btn-back { background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 8px 20px; border-radius: 50px; cursor: pointer; transition: all 0.3s; }
+        .verification-card { background: white; border-radius: 15px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 20px; border-left: 4px solid var(--admin-color); }
+        .verification-card.urgent { border-left-color: #dc3545; background: #fff5f5; }
+        .lead-card { background: white; border-radius: 10px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 15px; }
+        .lead-new { border-left: 4px solid #17a2b8; }
+        .info-box { background: #d1ecf1; border-left: 4px solid #17a2b8; padding: 15px; border-radius: 5px; margin-bottom: 20px; }
+        .important-note { background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; border-radius: 5px; margin-bottom: 20px; }
+        .upload-area { border: 2px dashed #ccc; border-radius: 10px; padding: 40px; text-align: center; cursor: pointer; transition: all 0.3s; }
+        
+        /* Deal Stepper */
+        .deal-stepper { display: flex; justify-content: space-between; position: relative; margin-bottom: 20px; }
+        .deal-stepper::before { content: ''; position: absolute; top: 15px; left: 0; width: 100%; height: 2px; background: #e9ecef; z-index: 0; }
+        .ds-step { position: relative; z-index: 1; text-align: center; background: white; padding: 0 10px; width: 33%; }
+        .ds-circle { width: 30px; height: 30px; border-radius: 50%; background: #e9ecef; color: #6c757d; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 5px; font-weight: bold; }
+        .ds-step.active .ds-circle { background: var(--primary-color); color: white; }
+        .ds-step.completed .ds-circle { background: #198754; color: white; }
+
+        /* Timeline for Track */
+        .timeline { border-left: 2px solid #e9ecef; padding-left: 20px; position: relative; }
+        .timeline-item { position: relative; margin-bottom: 20px; }
+        .timeline-item::before { content: ''; position: absolute; left: -26px; top: 5px; width: 10px; height: 10px; background: #28a745; border-radius: 50%; }
+        .timeline-item.pending::before { background: #ccc; }
+
+        /* STEP WIZARD STYLES - NEW */
+        .step-wizard-wrapper {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        .wizard-header-section {
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+            padding: 25px 30px;
+        }
+        .step-progress-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            position: relative;
+        }
+        .step-progress-bar::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #e9ecef;
+            z-index: 0;
+        }
+        .progress-step {
+            flex: 1;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+        .progress-step-number {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: white;
+            border: 2px solid #e9ecef;
+            color: #6c757d;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-bottom: 8px;
+            transition: all 0.3s;
+        }
+        .progress-step.active .progress-step-number {
+            background: var(--broker-color);
+            border-color: var(--broker-color);
+            color: white;
+            transform: scale(1.1);
+        }
+        .progress-step.completed .progress-step-number {
+            background: #28a745;
+            border-color: #28a745;
+            color: white;
+        }
+        .progress-step-label {
+            font-size: 0.75rem;
+            color: #6c757d;
+            font-weight: 500;
+        }
+        .progress-step.active .progress-step-label {
+            color: var(--broker-color);
+            font-weight: 600;
+        }
+        .wizard-content-section {
+            padding: 35px 40px;
+        }
+        .wizard-step-content {
+            display: none;
+        }
+        .wizard-step-content.active {
+            display: block;
+            animation: fadeInStep 0.3s ease-in-out;
+        }
+        @keyframes fadeInStep {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        .wizard-navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            padding-top: 30px;
+            margin-top: 30px;
+            border-top: 1px solid #e9ecef;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- LANDING PAGE -->
+    <div id="landing-page" class="page active">
+        <!-- Navigation -->
+        <nav class="navbar navbar-expand-lg fixed-top landing-nav">
+            <div class="container">
+                <a class="navbar-brand landing-brand" href="#">
+                    <i class="fas fa-shield-alt me-2"></i>TrustLand
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto align-items-center">
+                        <li class="nav-item"><a class="nav-link" href="#features">Features</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#portals">Portals</a></li>
+                        <li class="nav-item ms-lg-2">
+                            <a href="#" class="nav-link fw-semibold" data-bs-toggle="modal" data-bs-target="#loginModal">Log In</a>
+                        </li>
+                        <li class="nav-item ms-lg-3">
+                            <button class="btn btn-primary px-4" data-bs-toggle="modal" data-bs-target="#signupModal">Get Started</button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Hero Section -->
+        <header class="landing-hero">
+            <div class="hero-overlay"></div>
+            <div class="container hero-content">
+                <div class="row">
+                    <div class="col-lg-8">
+                        <div class="hero-badges">
+                            <div class="hero-badge-item"><i class="fas fa-check-circle text-success me-2"></i>Physically Verified</div>
+                            <div class="hero-badge-item"><i class="fas fa-gavel text-warning me-2"></i>Legally Clear</div>
+                        </div>
+                        <h1 class="display-3 fw-bold mb-4">Real Estate You Can Actually Trust.</h1>
+                        <p class="lead mb-5" style="opacity: 0.9; font-weight: 300;">
+                            India's first platform where every property is physically verified, mapped, and media-captured by our own admin team. Zero fakes. 100% Transparency.
+                        </p>
+                        <div class="d-flex gap-3 flex-wrap">
+                            <button onclick="showPage('client-portal')" class="btn btn-light btn-lg text-success fw-bold px-5 shadow">
+                                <i class="fas fa-search me-2"></i> Find a Property
+                            </button>
+                            <button onclick="showPage('broker-portal')" class="btn btn-outline-light btn-lg px-5">
+                                <i class="fas fa-plus-circle me-2"></i> List Property
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Features -->
+        <section id="features" class="features-section">
+            <div class="container">
+                <div class="text-center mb-5">
+                    <h2 class="fw-bold display-6 text-dark">Why Choose TrustLand?</h2>
+                    <p class="text-muted">We solved the trust deficit in real estate with technology and boots on the ground.</p>
+                </div>
+                <div class="row g-4">
+                    <div class="col-md-4">
+                        <div class="feature-box text-center">
+                            <div class="feature-icon-circle mx-auto"><i class="fas fa-user-shield"></i></div>
+                            <h4>Admin-Controlled Media</h4>
+                            <p class="text-muted">Brokers cannot upload photos. Our team visits every site to capture 360° views, drone footage, and raw photos.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="feature-box text-center">
+                            <div class="feature-icon-circle mx-auto"><i class="fas fa-map-marked-alt"></i></div>
+                            <h4>GPS Boundary Mapping</h4>
+                            <p class="text-muted">See exact property dimensions. We mark GPS coordinates on every corner to prevent encroachment issues.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="feature-box text-center">
+                            <div class="feature-icon-circle mx-auto"><i class="fas fa-file-contract"></i></div>
+                            <h4>Secure Transactions</h4>
+                            <p class="text-muted">We mediate the deal. From token advance to registration, our system ensures payments are safe.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Portals -->
+        <section id="portals" class="portals-section">
+            <div class="container">
+                <div class="row justify-content-center mb-5">
+                    <div class="col-lg-8 text-center">
+                        <h2 class="fw-bold">Select Your Role</h2>
+                        <p class="lead text-muted">A dedicated ecosystem for every stakeholder in the property market.</p>
+                    </div>
+                </div>
+                <div class="row g-4 justify-content-center mb-4">
+                    <div class="col-md-6 col-lg-5">
+                        <div class="portal-grid-card p-client" onclick="showPage('client-portal')">
+                            <i class="fas fa-user-circle p-icon"></i>
+                            <h3 class="p-title">Client Portal</h3>
+                            <p class="text-muted mb-4">Search verified properties, view drone footage, and track your purchase journey safely.</p>
+                            <button class="btn btn-outline-secondary rounded-pill px-4">Enter as Buyer</button>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-5">
+                        <div class="portal-grid-card p-broker" onclick="showPage('broker-portal')">
+                            <i class="fas fa-user-tie p-icon"></i>
+                            <h3 class="p-title">Broker Portal</h3>
+                            <p class="text-muted mb-4">List properties, track your commission wallet, and manage deals efficiently.</p>
+                            <button class="btn btn-outline-secondary rounded-pill px-4">Enter as Broker</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="row g-4 justify-content-center">
+                    <div class="col-md-4 col-lg-3">
+                        <div class="portal-grid-card p-spotter" onclick="showPage('spotter-portal')">
+                            <i class="fas fa-search-location p-icon"></i>
+                            <h5 class="p-title">Spotter</h5>
+                            <p class="small text-muted">Submit leads & earn rewards.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4 col-lg-3">
+                        <div class="portal-grid-card p-owner" onclick="showPage('owner-portal')">
+                            <i class="fas fa-house-user p-icon"></i>
+                            <h5 class="p-title">Owner</h5>
+                            <p class="small text-muted">List direct & save fees.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4 col-lg-3">
+                        <div class="portal-grid-card p-admin" onclick="showPage('admin-portal')">
+                            <i class="fas fa-user-shield p-icon"></i>
+                            <h5 class="p-title">Admin</h5>
+                            <p class="small text-muted">Verify & Manage Platform.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Stats -->
+        <section class="stats-strip">
+            <div class="container position-relative" style="z-index: 2;">
+                <div class="row text-center">
+                    <div class="col-6 col-md-3 stat-item"><h2>0%</h2><p>Fake Listings</p></div>
+                    <div class="col-6 col-md-3 stat-item"><h2>100%</h2><p>Physically Verified</p></div>
+                    <div class="col-6 col-md-3 stat-item"><h2>500+</h2><p>Properties Live</p></div>
+                    <div class="col-6 col-md-3 stat-item"><h2>1k+</h2><p>Happy Clients</p></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="landing-footer">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-4 mb-4">
+                        <a href="#" class="footer-logo"><i class="fas fa-shield-alt me-2"></i>TrustLand</a>
+                        <p class="small">The only real estate platform that puts trust first. We verify everything so you don't have to worry about anything.</p>
+                    </div>
+                    <div class="col-md-2 mb-4">
+                        <h6 class="text-white mb-3">Platform</h6>
+                        <a href="#" onclick="showPage('client-portal')" class="footer-link">Buy Property</a>
+                        <a href="#" onclick="showPage('broker-portal')" class="footer-link">Sell Property</a>
+                    </div>
+                    <div class="col-md-2 mb-4">
+                        <h6 class="text-white mb-3">Company</h6>
+                        <a href="#" class="footer-link">About Us</a>
+                        <a href="#" class="footer-link">Contact</a>
+                    </div>
+                    <div class="col-md-4 mb-4">
+                        <h6 class="text-white mb-3">Newsletter</h6>
+                        <div class="input-group">
+                            <input type="text" class="form-control" placeholder="Email Address">
+                            <button class="btn btn-primary">Subscribe</button>
+                        </div>
+                    </div>
+                </div>
+                <hr style="border-color: #333;">
+                <div class="text-center small">
+                    &copy; 2024 TrustLand Real Estate Platform. All rights reserved.
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- ============================================
+         BROKER PORTAL (FROM YOUR DOCUMENT)
+         ============================================ -->
+    <div id="broker-portal" class="page">
+        <div class="sidebar sidebar-broker">
+            <div class="sidebar-header">
+                <h4><i class="fas fa-shield-alt"></i> TrustLand</h4>
+                <p class="mb-0 small">Broker Portal</p>
+                <button class="btn btn-back mt-3" onclick="showPage('landing-page')">
+                    <i class="fas fa-arrow-left me-2"></i> Back to Home
+                </button>
+            </div>
+            <div class="p-3">
+                <a onclick="showBrokerSection('broker-dashboard-view', this)" class="menu-item active"><i class="fas fa-home me-2"></i> Dashboard</a>
+                <a onclick="showBrokerSection('broker-properties-view', this)" class="menu-item"><i class="fas fa-building me-2"></i> My Properties</a>
+                <a onclick="showBrokerSection('broker-add-property-view', this)" class="menu-item"><i class="fas fa-plus-circle me-2"></i> Add Property</a>
+                <a onclick="showBrokerSection('broker-deals-view', this)" class="menu-item"><i class="fas fa-handshake me-2"></i> Active Deals</a>
+                <a onclick="showBrokerSection('broker-requirements-view', this)" class="menu-item"><i class="fas fa-list-alt me-2"></i> Buyer Requirements</a>
+                <a onclick="showBrokerSection('broker-wallet-view', this)" class="menu-item"><i class="fas fa-wallet me-2"></i> Commission Wallet</a>
+                <a onclick="showBrokerSection('broker-referrals-view', this)" class="menu-item"><i class="fas fa-users me-2"></i> My Referrals</a>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="container-fluid">
+                
+                <!-- BROKER: DASHBOARD VIEW -->
+                <div id="broker-dashboard-view" class="broker-view active">
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="stat-card d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h4 class="mb-0">Welcome back, Rajesh Kumar!</h4>
+                                    <small class="text-muted">Broker ID: BRK2024001</small>
+                                </div>
+                                <button class="btn btn-primary" onclick="showBrokerSection('broker-add-property-view', document.querySelectorAll('.menu-item')[2])">
+                                    <i class="fas fa-plus me-2"></i> Add Property
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-3 mb-3">
+                            <div class="stat-card">
+                                <div class="stat-icon icon-primary"><i class="fas fa-building"></i></div>
+                                <h3 class="mb-1">12</h3><p class="text-muted mb-0">Active Listings</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="stat-card">
+                                <div class="stat-icon icon-success"><i class="fas fa-check-circle"></i></div>
+                                <h3 class="mb-1">8</h3><p class="text-muted mb-0">Verified</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="stat-card">
+                                <div class="stat-icon icon-warning"><i class="fas fa-handshake"></i></div>
+                                <h3 class="mb-1">3</h3><p class="text-muted mb-0">Active Deals</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="stat-card">
+                                <div class="stat-icon icon-info"><i class="fas fa-trophy"></i></div>
+                                <h3 class="mb-1">5</h3><p class="text-muted mb-0">Closed</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-8">
+                            <div class="wallet-card wallet-broker">
+                                <h5 class="mb-3"><i class="fas fa-wallet me-2"></i> Commission Wallet</h5>
+                                <h2 class="mb-0">₹2,45,000</h2>
+                                <p class="mb-3 opacity-75">Total Earned</p>
+                                <div class="row">
+                                    <div class="col-6"><p class="mb-1 opacity-75">Available</p><h4>₹85,000</h4></div>
+                                    <div class="col-6"><p class="mb-1 opacity-75">Pending</p><h4>₹1,60,000</h4></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="stat-card h-100">
+                                <h6 class="mb-3">Referral Network</h6>
+                                <div class="text-center">
+                                    <div class="stat-icon icon-primary mx-auto"><i class="fas fa-users"></i></div>
+                                    <h4>7 Sub-Brokers</h4>
+                                    <h5 class="text-success mb-3">₹15,000</h5>
+                                    <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#inviteModal" style="color: var(--broker-color); border-color: var(--broker-color);">
+                                        <i class="fas fa-user-plus me-2"></i>Invite Sub-Brokers
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- BROKER: ADD PROPERTY VIEW WITH STEP WIZARD -->
+                <div id="broker-add-property-view" class="broker-view">
+                    <div class="step-wizard-wrapper">
+                        <!-- Wizard Header -->
+                        <div class="wizard-header-section">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div>
+                                    <h3 class="mb-1">Create Property</h3>
+                                    <p class="text-muted mb-0 small">Manage your own property listing.</p>
+                                </div>
+                                <div>
+                                    <span class="badge bg-primary" id="stepBadge">Step 1 of 7</span>
+                                </div>
+                            </div>
+
+                            <!-- Step Progress Bar -->
+                            <div class="step-progress-bar">
+                                <div class="progress-step active" data-step="1">
+                                    <div class="progress-step-number">1</div>
+                                    <div class="progress-step-label">Basic<br>Information</div>
+                                </div>
+                                <div class="progress-step" data-step="2">
+                                    <div class="progress-step-number">2</div>
+                                    <div class="progress-step-label">Location<br>Details</div>
+                                </div>
+                                <div class="progress-step" data-step="3">
+                                    <div class="progress-step-number">3</div>
+                                    <div class="progress-step-label">Property<br>Details</div>
+                                </div>
+                                <div class="progress-step" data-step="4">
+                                    <div class="progress-step-number">4</div>
+                                    <div class="progress-step-label">Amenities &<br>Media</div>
+                                </div>
+                                <div class="progress-step" data-step="5">
+                                    <div class="progress-step-number">5</div>
+                                    <div class="progress-step-label">Nearby<br>Locations</div>
+                                </div>
+                                <div class="progress-step" data-step="6">
+                                    <div class="progress-step-number">6</div>
+                                    <div class="progress-step-label">Owner<br>Settings</div>
+                                </div>
+                                <div class="progress-step" data-step="7">
+                                    <div class="progress-step-number">7</div>
+                                    <div class="progress-step-label">Preview &<br>Submit</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Wizard Content -->
+                        <div class="wizard-content-section">
+                            <form id="propertyForm">
+                                
+                                <!-- STEP 1: Basic Information -->
+                                <div class="wizard-step-content active" data-step="1">
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label">Property Title <span class="text-danger">*</span></label>
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="fas fa-home"></i></span>
+                                                <input type="text" class="form-control" placeholder="Enter property title">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Property Type <span class="text-danger">*</span></label>
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="fas fa-tag"></i></span>
+                                                <select class="form-select">
+                                                    <option value="">Select Property Type</option>
+                                                    <option>Residential Plot</option>
+                                                    <option>Agricultural Land</option>
+                                                    <option>Commercial Land</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Purpose <span class="text-danger">*</span></label>
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="fas fa-bullseye"></i></span>
+                                                <select class="form-select">
+                                                    <option>For Sale</option>
+                                                    <option>For Rent</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Price ($) <span class="text-danger">*</span></label>
+                                            <div class="input-group">
+                                                <span class="input-group-text">₹</span>
+                                                <input type="number" class="form-control" placeholder="0">
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="form-label">Description</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="fas fa-align-left"></i></span>
+                                                <textarea class="form-control" rows="4" placeholder="Enter property details..."></textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- STEP 2: Location Details -->
+                                <div class="wizard-step-content" data-step="2">
+                                    <div class="row g-3">
+                                        <div class="col-12">
+                                            <label class="form-label">Address <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control" placeholder="Complete address">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">City <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">State <span class="text-danger">*</span></label>
+                                            <select class="form-select">
+                                                <option>Select State</option>
+                                                <option>Tamil Nadu</option>
+                                                <option>Karnataka</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Pincode</label>
+                                            <input type="text" class="form-control" placeholder="641001">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Area/Locality</label>
+                                            <input type="text" class="form-control">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- STEP 3: Property Details -->
+                                <div class="wizard-step-content" data-step="3">
+                                    <div class="row g-3">
+                                        <div class="col-md-4">
+                                            <label class="form-label">Total Area <span class="text-danger">*</span></label>
+                                            <input type="number" class="form-control" placeholder="2400">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Unit <span class="text-danger">*</span></label>
+                                            <select class="form-select">
+                                                <option>Square Feet</option>
+                                                <option>Acres</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Facing</label>
+                                            <select class="form-select">
+                                                <option>East</option>
+                                                <option>West</option>
+                                                <option>North</option>
+                                                <option>South</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- STEP 4: Amenities & Media -->
+                                <div class="wizard-step-content" data-step="4">
+                                    <div class="important-note">
+                                        <h6 class="mb-2"><i class="fas fa-info-circle me-2"></i> Important: Photo & Media Policy</h6>
+                                        <p class="mb-0"><strong>You cannot upload photos or videos.</strong> Our admin team will capture professional photos during physical verification.</p>
+                                    </div>
+
+                                    <h6 class="mt-3 mb-3">Upload Documents (Admin Eyes Only)</h6>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Patta Document *</label>
+                                            <div class="document-upload-zone">
+                                                <i class="fas fa-cloud-upload-alt fa-2x text-muted mb-2"></i>
+                                                <p class="mb-0">Click to upload</p>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Chitta (Tax Receipt) *</label>
+                                            <div class="document-upload-zone">
+                                                <i class="fas fa-cloud-upload-alt fa-2x text-muted mb-2"></i>
+                                                <p class="mb-0">Click to upload</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- STEP 5: Nearby Locations -->
+                                <div class="wizard-step-content" data-step="5">
+                                    <h6 class="mb-3">Nearby Landmarks</h6>
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label">Schools</label>
+                                            <input type="text" class="form-control" placeholder="e.g., ABC School (2 km)">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Hospitals</label>
+                                            <input type="text" class="form-control" placeholder="e.g., City Hospital">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- STEP 6: Owner Settings -->
+                                <div class="wizard-step-content" data-step="6">
+                                    <h6 class="mb-3">Owner Information</h6>
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label">Owner Name *</label>
+                                            <input type="text" class="form-control">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Owner Contact *</label>
+                                            <input type="tel" class="form-control" placeholder="+91 XXXXX XXXXX">
+                                        </div>
+                                    </div>
+
+                                    <h6 class="mt-4 mb-3">Additional Settings</h6>
+                                    <div class="p-3 bg-light rounded border">
+                                        <div class="form-check form-switch mb-2">
+                                            <input class="form-check-input" type="checkbox" id="urgentSale">
+                                            <label class="form-check-label" for="urgentSale"><strong>Request "Urgent Sale" / Hot Deal Tag</strong></label>
+                                        </div>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="coBroking">
+                                            <label class="form-check-label" for="coBroking"><strong>Enable Co-Broking (B2B Collaboration)</strong></label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- STEP 7: Preview & Submit -->
+                                <div class="wizard-step-content" data-step="7">
+                                    <div class="alert alert-success">
+                                        <h6><i class="fas fa-check-circle me-2"></i>Almost Done!</h6>
+                                        <p class="mb-0">Review all information before submitting.</p>
+                                    </div>
+                                    <div class="form-check mb-3">
+                                        <input class="form-check-input" type="checkbox" id="finalTerms">
+                                        <label class="form-check-label" for="finalTerms">
+                                            I confirm all information is accurate and understand admin will verify and upload exclusive photos/videos.
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <!-- Navigation Buttons -->
+                                <div class="wizard-navigation-buttons">
+                                    <button type="button" class="btn btn-outline-secondary" id="prevBtn" onclick="navigateWizard(-1)" style="display: none;">
+                                        <i class="fas fa-arrow-left me-2"></i> Previous
+                                    </button>
+                                    <button type="button" class="btn btn-primary" id="nextBtn" onclick="navigateWizard(1)">
+                                        Next <i class="fas fa-arrow-right ms-2"></i>
+                                    </button>
+                                    <button type="submit" class="btn btn-success" id="submitBtn" style="display: none;">
+                                        <i class="fas fa-paper-plane me-2"></i> Submit for Verification
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MY PROPERTIES VIEW -->
+                <div id="broker-properties-view" class="broker-view">
+                    <h5 class="mb-4">My Property Portfolio</h5>
+                    <div class="row">
+                        <div class="col-md-4 mb-4">
+                            <div class="card border-0 shadow-sm h-100">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span class="badge bg-success">Live</span>
+                                        <small class="text-muted">ID: PL-098</small>
+                                    </div>
+                                    <h6 class="card-title">Residential Plot - Saravanampatti</h6>
+                                    <p class="text-muted small">2400 sq.ft | ₹36 Lakhs</p>
+                                    <hr>
+                                    <div class="d-flex justify-content-between">
+                                        <span class="small text-success"><i class="fas fa-check-circle"></i> Admin Verified</span>
+                                        <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#propertyDetailModal">View</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-4">
+                            <div class="card border-0 shadow-sm h-100">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span class="badge bg-warning text-dark">Pending Visit</span>
+                                        <small class="text-muted">ID: AL-102</small>
+                                    </div>
+                                    <h6 class="card-title">Agri Land - Pollachi</h6>
+                                    <p class="text-muted small">5 Acres | ₹1.2 Cr</p>
+                                    <hr>
+                                    <div class="d-flex justify-content-between">
+                                        <span class="small text-warning"><i class="fas fa-clock"></i> Visit: Feb 10</span>
+                                        <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#trackingModal">Track</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-4">
+                            <div class="card border-0 shadow-sm h-100">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span class="badge bg-secondary">Sold</span>
+                                        <small class="text-muted">ID: CP-055</small>
+                                    </div>
+                                    <h6 class="card-title">Commercial Plot - RS Puram</h6>
+                                    <p class="text-muted small">3000 sq.ft | ₹2.5 Cr</p>
+                                    <hr>
+                                    <div class="d-flex justify-content-between">
+                                        <span class="small text-success fw-bold">Earned: ₹1.5L</span>
+                                        <button class="btn btn-sm btn-outline-secondary" disabled>Closed</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- COMMISSION WALLET VIEW -->
+                <div id="broker-wallet-view" class="broker-view">
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="wallet-card wallet-broker text-white p-4 rounded-3 shadow-sm mb-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <p class="mb-1 opacity-75">Available Balance</p>
+                                        <h2 class="mb-0 fw-bold">₹85,000</h2>
+                                    </div>
+                                    <button class="btn btn-light text-primary fw-bold" data-bs-toggle="modal" data-bs-target="#withdrawModal">
+                                        <i class="fas fa-download me-2"></i> Withdraw
+                                    </button>
+                                </div>
+                                <hr class="my-3 opacity-25">
+                                <div class="row">
+                                    <div class="col-6">
+                                        <small class="opacity-75">Total Earned</small>
+                                        <h5 class="mb-0">₹2,45,000</h5>
+                                    </div>
+                                    <div class="col-6">
+                                        <small class="opacity-75">Pending Clearance</small>
+                                        <h5 class="mb-0">₹1,60,000</h5>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <h5 class="mb-3">Transaction History</h5>
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Description</th>
+                                        <th>Type</th>
+                                        <th>Amount</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Feb 01, 2024</td>
+                                        <td>Commission - RS Puram Plot</td>
+                                        <td><span class="text-success">Credit</span></td>
+                                        <td class="fw-bold text-success">+ ₹1,50,000</td>
+                                        <td><span class="badge bg-success">Completed</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Jan 28, 2024</td>
+                                        <td>Withdrawal to Bank ****1234</td>
+                                        <td><span class="text-danger">Debit</span></td>
+                                        <td class="fw-bold text-danger">- ₹50,000</td>
+                                        <td><span class="badge bg-success">Processed</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Jan 15, 2024</td>
+                                        <td>Override - Sub-broker Deal</td>
+                                        <td><span class="text-success">Credit</span></td>
+                                        <td class="fw-bold text-success">+ ₹8,000</td>
+                                        <td><span class="badge bg-success">Completed</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- BROKER ACTIVE DEALS VIEW -->
+                <div id="broker-deals-view" class="broker-view">
+                    <h5 class="mb-3">Active Deal Pipeline</h5>
+                    <div class="stat-card mb-3">
+                        <div class="d-flex justify-content-between mb-3">
+                            <h6 class="mb-0">Buyer: Mr. Venkatesh (Saravanampatti Plot)</h6>
+                            <span class="badge bg-info">Status: Legal Check</span>
+                        </div>
+                        <div class="deal-stepper">
+                            <div class="ds-step completed"><div class="ds-circle"><i class="fas fa-check"></i></div><p class="small mb-0">Token Paid</p></div>
+                            <div class="ds-step active"><div class="ds-circle"><i class="fas fa-gavel"></i></div><p class="small mb-0">Legal Check</p></div>
+                            <div class="ds-step"><div class="ds-circle"><i class="fas fa-file-signature"></i></div><p class="small mb-0">Registration</p></div>
+                        </div>
+                        <div class="mt-3 text-end">
+                            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#viewDocsModal"><i class="fas fa-file-alt me-1"></i> View Documents</button>
+                            <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#contactAdminModal"><i class="fas fa-headset me-1"></i> Contact Admin</button>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="d-flex justify-content-between mb-3">
+                            <h6 class="mb-0">Buyer: Mrs. Lakshmi (Pollachi Land)</h6>
+                            <span class="badge bg-success">Status: Ready for Reg</span>
+                        </div>
+                        <div class="deal-stepper">
+                            <div class="ds-step completed"><div class="ds-circle"><i class="fas fa-check"></i></div><p class="small mb-0">Token Paid</p></div>
+                            <div class="ds-step completed"><div class="ds-circle"><i class="fas fa-check"></i></div><p class="small mb-0">Legal Check</p></div>
+                            <div class="ds-step active"><div class="ds-circle"><i class="fas fa-file-signature"></i></div><p class="small mb-0">Registration</p></div>
+                        </div>
+                        <div class="mt-3 text-end">
+                            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#viewDocsModal"><i class="fas fa-file-alt me-1"></i> View Schedule</button>
+                            <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#contactAdminModal"><i class="fas fa-headset me-1"></i> Contact Admin</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- BROKER REFERRALS VIEW -->
+                <div id="broker-referrals-view" class="broker-view">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5>My Referral Network</h5>
+                        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#inviteModal"><i class="fas fa-user-plus me-2"></i> Invite New</button>
+                    </div>
+                    <div class="stat-card">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle" id="referralTable">
+                                <thead class="table-light"><tr><th>Name</th><th>Status</th><th>Deals Closed</th><th>My Earnings (Override)</th><th>Joined Date</th></tr></thead>
+                                <tbody>
+                                    <tr><td><strong>Karthik S</strong><br><small class="text-muted">BRK-SUB-001</small></td><td><span class="badge bg-success">Active</span></td><td>2</td><td>₹8,000</td><td>Jan 12, 2024</td></tr>
+                                    <tr><td><strong>Anita Raj</strong><br><small class="text-muted">BRK-SUB-002</small></td><td><span class="badge bg-success">Active</span></td><td>1</td><td>₹4,500</td><td>Jan 20, 2024</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- BROKER REQUIREMENTS VIEW -->
+                <div id="broker-requirements-view" class="broker-view">
+                    <div class="info-box"><p class="mb-0"><i class="fas fa-lightbulb me-2"></i> <strong>Reverse Search:</strong> See what buyers want. Unlock leads to request Admin coordination.</p></div>
+                    <div class="stat-card mb-3">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div><h6 class="mb-1">Requirement: 2-3 Acre Agri Land</h6><p class="mb-1 text-muted small"><i class="fas fa-map-marker-alt"></i> Preferred: Pollachi</p><p class="mb-0 text-success fw-bold">Budget: ₹80L - ₹1.2Cr</p></div>
+                            <button class="btn btn-sm btn-warning text-dark" onclick="unlockLead(this)"><i class="fas fa-lock me-1"></i> Unlock Lead (₹100)</button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- OTHER PORTALS (Hidden - Keeping original structure) -->
+    <div id="client-portal" class="page"><div class="sidebar sidebar-client"><div class="sidebar-header"><h4><i class="fas fa-shield-alt"></i> TrustLand</h4><p class="mb-0 small">Client Portal</p><button class="btn btn-back mt-3" onclick="showPage('landing-page')"><i class="fas fa-arrow-left me-2"></i> Back to Home</button></div><div class="p-3"><a href="#" class="menu-item active"><i class="fas fa-search me-2"></i> Search Properties</a><a href="#" class="menu-item"><i class="fas fa-heart me-2"></i> Shortlisted</a><a href="#" class="menu-item"><i class="fas fa-home me-2"></i> My Dashboard</a></div></div><div class="main-content"><div class="container-fluid"><div class="stat-card"><h4>Client Dashboard</h4></div></div></div></div>
+    <div id="admin-portal" class="page"><div class="sidebar sidebar-admin"><div class="sidebar-header"><h4><i class="fas fa-shield-alt"></i> TrustLand</h4><p class="mb-0 small">Admin Portal</p><button class="btn btn-back mt-3" onclick="showPage('landing-page')"><i class="fas fa-arrow-left me-2"></i> Back to Home</button></div><div class="p-3"><a href="#" class="menu-item active"><i class="fas fa-home me-2"></i> Dashboard</a></div></div><div class="main-content"><div class="container-fluid"><div class="stat-card"><h4>Admin Dashboard</h4></div></div></div></div>
+    <div id="spotter-portal" class="page"><div class="sidebar sidebar-spotter"><div class="sidebar-header"><h4><i class="fas fa-shield-alt"></i> TrustLand</h4><p class="mb-0 small">Spotter Portal</p><button class="btn btn-back mt-3" onclick="showPage('landing-page')"><i class="fas fa-arrow-left me-2"></i> Back to Home</button></div><div class="p-3"><a href="#" class="menu-item active"><i class="fas fa-home me-2"></i> Dashboard</a></div></div><div class="main-content"><div class="container-fluid"><div class="stat-card"><h4>Spotter Dashboard</h4></div></div></div></div>
+    <div id="owner-portal" class="page"><div class="sidebar sidebar-owner"><div class="sidebar-header"><h4><i class="fas fa-shield-alt"></i> TrustLand</h4><p class="mb-0 small">Owner Portal</p><button class="btn btn-back mt-3" onclick="showPage('landing-page')"><i class="fas fa-arrow-left me-2"></i> Back to Home</button></div><div class="p-3"><a href="#" class="menu-item active"><i class="fas fa-home me-2"></i> Dashboard</a></div></div><div class="main-content"><div class="container-fluid"><div class="stat-card"><h4>Owner Dashboard</h4></div></div></div></div>
+
+    <!-- MODALS (From original document) -->
+    <div class="modal fade" id="withdrawModal" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-dialog-centered"><div class="modal-content border-0 shadow"><div class="modal-header bg-primary text-white"><h5 class="modal-title"><i class="fas fa-wallet me-2"></i>Withdraw Funds</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button></div><div class="modal-body p-4"><div class="alert alert-info py-2 small">Available Balance: ₹85,000</div><form onsubmit="event.preventDefault(); alert('Withdrawal request submitted!'); bootstrap.Modal.getInstance(document.getElementById('withdrawModal')).hide();"><div class="mb-3"><label class="form-label fw-bold">Amount to Withdraw (₹)</label><input type="number" class="form-control" placeholder="Minimum ₹500" required></div><div class="mb-3"><label class="form-label fw-bold">Select Bank Account</label><select class="form-select"><option>HDFC Bank - ****1234</option><option>SBI Bank - ****8890</option><option>+ Add New Account</option></select></div><button type="submit" class="btn btn-primary w-100 py-2">Request Withdrawal</button></form></div></div></div></div>
+    <div class="modal fade" id="propertyDetailModal" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-lg modal-dialog-centered"><div class="modal-content border-0 shadow"><div class="modal-header"><h5 class="modal-title fw-bold">Property Details - ID: PL-098</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div><div class="modal-body p-0"><div class="row g-0"><div class="col-md-5"><img src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" class="img-fluid h-100" style="object-fit: cover;" alt="Property"></div><div class="col-md-7 p-4"><span class="badge bg-success mb-2">Live Listing</span><h4>Residential Plot - Saravanampatti</h4><p class="text-muted"><i class="fas fa-map-marker-alt me-2"></i>Near IT Park, Saravanampatti, Coimbatore</p><div class="row mb-3"><div class="col-6"><strong>Area:</strong><br>2400 sq.ft</div><div class="col-6"><strong>Price:</strong><br>₹36,00,000</div></div><div class="important-note mb-3 p-2 small"><strong>Admin Note:</strong> Property boundaries physically verified. GPS tagging completed on Feb 01.</div><button class="btn btn-outline-primary btn-sm me-2"><i class="fas fa-edit me-1"></i> Edit Details</button><button class="btn btn-outline-danger btn-sm"><i class="fas fa-trash me-1"></i> Delete</button></div></div></div></div></div></div>
+    <div class="modal fade" id="trackingModal" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-dialog-centered"><div class="modal-content border-0 shadow"><div class="modal-header"><h5 class="modal-title fw-bold"><i class="fas fa-route me-2"></i>Verification Progress</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div><div class="modal-body p-4"><h6 class="mb-4">Property: Agri Land - Pollachi (AL-102)</h6><div class="timeline"><div class="timeline-item"><div class="fw-bold">Document Submission</div><div class="text-muted small">Completed on Feb 05, 2024</div></div><div class="timeline-item"><div class="fw-bold">Admin Review</div><div class="text-muted small">Completed on Feb 06, 2024</div></div><div class="timeline-item"><div class="fw-bold text-primary">Physical Visit Scheduled</div><div class="text-muted small">Scheduled for Feb 10, 2024 (10:30 AM)</div></div><div class="timeline-item pending"><div class="fw-bold text-muted">Drone Media Capture</div><div class="text-muted small">Awaiting Physical Visit</div></div><div class="timeline-item pending"><div class="fw-bold text-muted">Final Approval & Live</div><div class="text-muted small">Estimated Feb 12, 2024</div></div></div></div></div></div></div>
+    <div class="modal fade" id="viewDocsModal" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">Secure Documents</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div><div class="modal-body"><div class="list-group"><a href="#" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"><div><i class="fas fa-file-pdf text-danger me-2"></i> Sale Agreement</div><span class="badge bg-success rounded-pill">Verified</span></a><a href="#" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"><div><i class="fas fa-file-alt text-primary me-2"></i> Legal Opinion</div><span class="badge bg-success rounded-pill">Verified</span></a><a href="#" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"><div><i class="fas fa-map text-warning me-2"></i> Encumbrance Certificate</div><span class="badge bg-success rounded-pill">Verified</span></a></div></div></div></div></div>
+    <div class="modal fade" id="contactAdminModal" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">Contact Admin</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div><div class="modal-body"><form onsubmit="event.preventDefault(); alert('Message sent to Admin!'); bootstrap.Modal.getInstance(document.getElementById('contactAdminModal')).hide();"><div class="mb-3"><label class="form-label">Subject</label><input type="text" class="form-control" value="Query regarding Deal #DL-204" readonly></div><div class="mb-3"><label class="form-label">Message</label><textarea class="form-control" rows="4" placeholder="Type your query here..."></textarea></div><button type="submit" class="btn btn-primary w-100">Send Message</button></form></div></div></div></div>
+    <div class="modal fade auth-modal" id="loginModal" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h4 class="modal-title auth-title">Welcome Back</h4><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div><div class="modal-body"><form onsubmit="handleLogin(event)"><div class="text-center mb-3"><p class="text-muted small">Select your role to login</p><div class="role-selector-group"><input type="radio" class="role-radio" name="loginRole" id="login-role-client" value="client-portal" checked><label class="role-label" for="login-role-client">Buyer</label><input type="radio" class="role-radio" name="loginRole" id="login-role-broker" value="broker-portal"><label class="role-label" for="login-role-broker">Broker</label><input type="radio" class="role-radio" name="loginRole" id="login-role-spotter" value="spotter-portal"><label class="role-label" for="login-role-spotter">Spotter</label><input type="radio" class="role-radio" name="loginRole" id="login-role-owner" value="owner-portal"><label class="role-label" for="login-role-owner">Owner</label><input type="radio" class="role-radio" name="loginRole" id="login-role-admin" value="admin-portal"><label class="role-label" for="login-role-admin">Admin</label></div></div><div class="form-floating mb-3"><input type="email" class="form-control" id="loginEmail" placeholder="name@example.com"><label for="loginEmail">Email address</label></div><div class="form-floating mb-3"><input type="password" class="form-control" id="loginPassword" placeholder="Password"><label for="loginPassword">Password</label></div><button type="submit" class="btn btn-primary w-100 py-2 mb-3">Log In</button></form></div></div></div></div>
+    <div class="modal fade auth-modal" id="signupModal" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h4 class="modal-title auth-title">Create Account</h4><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div><div class="modal-body"><form><div class="row g-2 mb-3"><div class="col-md-6"><div class="form-floating"><input type="text" class="form-control" id="signupName" placeholder="Full Name"><label for="signupName">Full Name</label></div></div><div class="col-md-6"><div class="form-floating"><input type="tel" class="form-control" id="signupPhone" placeholder="Mobile"><label for="signupPhone">Mobile</label></div></div></div><p class="small text-muted mb-2">I want to join as:</p><div class="role-selector-group mb-3"><input type="radio" class="role-radio" name="signupRole" id="role-client" checked><label class="role-label" for="role-client">Buyer</label><input type="radio" class="role-radio" name="signupRole" id="role-broker"><label class="role-label" for="role-broker">Broker</label><input type="radio" class="role-radio" name="signupRole" id="role-spotter"><label class="role-label" for="role-spotter">Spotter</label></div><button type="button" class="btn btn-primary w-100 py-2 mb-3">Sign Up</button></form></div></div></div></div>
+    <div class="modal fade auth-modal" id="inviteModal" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h5 class="modal-title auth-title"><i class="fas fa-users me-2"></i>Invite Sub-Broker</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div><div class="modal-body"><p class="text-muted small mb-3">Grow your network! Invite sub-brokers and earn override commissions on their deals.</p><form id="inviteForm"><div class="form-floating mb-3"><input type="text" class="form-control" id="inviteName" placeholder="Name" required><label>Full Name</label></div><div class="form-floating mb-3"><input type="email" class="form-control" id="inviteEmail" placeholder="Email" required><label>Email Address</label></div><div class="form-floating mb-3"><input type="tel" class="form-control" id="invitePhone" placeholder="Phone"><label>Mobile Number</label></div><button type="button" class="btn btn-primary w-100" style="background-color: var(--broker-color); border-color: var(--broker-color);" onclick="handleInvite()">Send Invitation</button></form></div></div></div></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Wizard step tracking
+        let currentWizardStep = 1;
+        const totalWizardSteps = 7;
+
+        // Page Navigation
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            document.getElementById(pageId).classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        // Broker Navigation
+        function showBrokerSection(viewId, element) {
+            document.querySelectorAll('.broker-view').forEach(view => {
+                view.classList.remove('active');
+            });
+            const targetView = document.getElementById(viewId);
+            if(targetView) {
+                targetView.classList.add('active');
+            }
+            if (element) {
+                document.querySelectorAll('.sidebar-broker .menu-item').forEach(item => {
+                    item.classList.remove('active');
+                });
+                element.classList.add('active');
+            }
+            
+            // Reset wizard when entering
+            if(viewId === 'broker-add-property-view') {
+                currentWizardStep = 1;
+                updateWizardStep(currentWizardStep);
+            }
+        }
+
+        // Wizard Navigation
+        function updateWizardStep(step) {
+            // Hide all steps
+            document.querySelectorAll('.wizard-step-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Show current step
+            const currentStep = document.querySelector(`.wizard-step-content[data-step="${step}"]`);
+            if(currentStep) {
+                currentStep.classList.add('active');
+            }
+            
+            // Update progress bar
+            document.querySelectorAll('.progress-step').forEach((item, index) => {
+                item.classList.remove('active', 'completed');
+                const stepNum = index + 1;
+                if(stepNum < step) {
+                    item.classList.add('completed');
+                } else if(stepNum === step) {
+                    item.classList.add('active');
+                }
+            });
+            
+            // Update badge
+            document.getElementById('stepBadge').textContent = `Step ${step} of ${totalWizardSteps}`;
+            
+            // Update buttons
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const submitBtn = document.getElementById('submitBtn');
+            
+            if(step === 1) {
+                prevBtn.style.display = 'none';
+            } else {
+                prevBtn.style.display = 'inline-block';
+            }
+            
+            if(step === totalWizardSteps) {
+                nextBtn.style.display = 'none';
+                submitBtn.style.display = 'inline-block';
+            } else {
+                nextBtn.style.display = 'inline-block';
+                submitBtn.style.display = 'none';
+            }
+        }
+
+        function navigateWizard(direction) {
+            currentWizardStep += direction;
+            if(currentWizardStep < 1) currentWizardStep = 1;
+            if(currentWizardStep > totalWizardSteps) currentWizardStep = totalWizardSteps;
+            updateWizardStep(currentWizardStep);
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        }
+
+        // Handle Login
+        function handleLogin(event) {
+            event.preventDefault();
+            const selectedRole = document.querySelector('input[name="loginRole"]:checked').value;
+            const loginModalEl = document.getElementById('loginModal');
+            const modal = bootstrap.Modal.getInstance(loginModalEl);
+            modal.hide();
+            showPage(selectedRole);
+            if(selectedRole === 'broker-portal') {
+                showBrokerSection('broker-dashboard-view', document.querySelector('.sidebar-broker .menu-item:first-child'));
+            }
+        }
+
+        // Handle Invite
+        function handleInvite() {
+            const name = document.getElementById('inviteName').value;
+            const email = document.getElementById('inviteEmail').value;
+            if(!name || !email) { alert("Please fill in Name and Email"); return; }
+            alert(`Invitation sent to ${email}!`);
+            const tableBody = document.querySelector('#referralTable tbody');
+            const newRow = `<tr><td><strong>${name}</strong><br><small class="text-muted">BRK-SUB-NEW</small></td><td><span class="badge bg-secondary">Invite Sent</span></td><td>0</td><td>₹0</td><td>Just Now</td></tr>`;
+            tableBody.insertAdjacentHTML('beforeend', newRow);
+            const inviteModalEl = document.getElementById('inviteModal');
+            const modal = bootstrap.Modal.getInstance(inviteModalEl);
+            modal.hide();
+            showBrokerSection('broker-referrals-view', document.querySelectorAll('.sidebar-broker .menu-item')[6]); 
+            document.getElementById('inviteForm').reset();
+        }
+
+        // Unlock Lead
+        function unlockLead(buttonElement) {
+            if(confirm("Confirm to unlock this lead for ₹100?")) {
+                buttonElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+                setTimeout(() => {
+                    buttonElement.className = 'btn btn-sm btn-success disabled';
+                    buttonElement.innerHTML = '<i class="fas fa-check"></i> Admin Notified';
+                    buttonElement.onclick = null;
+                    alert("Success! Admin has been notified.");
+                }, 1000);
+            }
+        }
+
+        // Upload UI
+        document.querySelectorAll('.document-upload-zone, .upload-area').forEach(zone => {
+            zone.addEventListener('click', function() {
+                this.style.borderColor = '#28a745';
+                this.style.background = '#f0fff4';
+                const icon = this.querySelector('i');
+                if (icon) {
+                    icon.classList.remove('fa-cloud-upload-alt');
+                    icon.classList.add('fa-check-circle');
+                    icon.style.color = '#28a745';
+                }
+                const text = this.querySelector('p');
+                if (text) text.textContent = 'File uploaded successfully';
+            });
+        });
+
+        // Form Submission
+        document.getElementById('propertyForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('Property submitted for admin verification!');
+            showBrokerSection('broker-dashboard-view', document.querySelector('.sidebar-broker .menu-item:first-child'));
+        });
+
+        // Initialize
+        updateWizardStep(1);
+    </script>
+</body>
+</html>
